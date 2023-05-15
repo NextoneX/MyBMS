@@ -2,3 +2,5 @@
 *.zip
 .vs/
 node_modules/
+test.*
+cache.py
