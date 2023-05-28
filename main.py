@@ -2,24 +2,26 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
 from PyQt5 import QtCore, QtGui, QtWidgets
-from frontend.login_window import Ui_login_window
-from frontend.admin_window import Ui_admin_window
-from frontend.book_reg_widget import Ui_book_reg_widget
-from frontend.BR_widget import Ui_BR_widget
-from frontend.card_manage_widget import Ui_card_manage_widget
-from frontend.search_book_widget import Ui_search_book_widget
+from frontend.windows_ui import *
+from link.connect import Connect
+from process.admin import AdminClass
 
+#region mainwindow
 class login_window(QMainWindow):
-    def __init__(self):
+    def __init__(self, admin):
+        self.admin = admin
         super(login_window, self).__init__()
         self.ui = Ui_login_window()
         self.ui.setupUi(self)
+        self.ui.statusbar.setStyleSheet("QStatusBar{color: red;}")
         self.ui.LoginButton.clicked.connect(self.check_login)
         self.ui.Non_admin_login.clicked.connect(self.openSearchBookWindow)
 
     def check_login(self):
-        if(True):
+        if(admin.login(self.ui.ano_input.toPlainText(), self.ui.password_input.toPlainText())):
             self.openAdminWindow()
+        else:
+            self.ui.statusbar.showMessage("ID or password error!", 0)
 
     def openAdminWindow(self):
         self.ui = Ui_admin_window()
@@ -31,6 +33,7 @@ class login_window(QMainWindow):
     
     def openSearchBookWindow(self):
         self.hide()
+        #todo
         new_window = search_book_widget()
         new_window.destroyed.connect(self.show)
         new_window.ui.ReturnButton.clicked.connect(self.show)
@@ -38,6 +41,7 @@ class login_window(QMainWindow):
 
     def openBookRegWindow(self):
         self.hide()
+        #todo
         new_window = book_reg_widget()
         new_window.destroyed.connect(self.show)
         new_window.ui.ReturnButton.clicked.connect(self.show)
@@ -45,6 +49,7 @@ class login_window(QMainWindow):
 
     def openBRWindow(self):
         self.hide()
+        #todo
         new_window = BR_widget()
         new_window.destroyed.connect(self.show)
         new_window.ui.ReturnButton_2.clicked.connect(self.show)
@@ -52,6 +57,7 @@ class login_window(QMainWindow):
     
     def openCardManageWindow(self):
         self.hide()
+        #todo
         new_window = card_manage_widget()
         new_window.destroyed.connect(self.show)
         new_window.ui.ReturnButton.clicked.connect(self.show)
@@ -59,11 +65,14 @@ class login_window(QMainWindow):
     
     def openSearchBookWindow(self):
         self.hide()
+        #todo
         new_window = search_book_widget()
         new_window.destroyed.connect(self.show)
         new_window.ui.ReturnButton.clicked.connect(self.show)
         new_window.exec_()
+#endregion
 
+#region widgets
 class search_book_widget(QDialog):
     def __init__(self):
         super(search_book_widget, self).__init__()
@@ -91,10 +100,12 @@ class card_manage_widget(QDialog):
         self.ui = Ui_card_manage_widget()
         self.ui.setupUi(self)
         self.ui.ReturnButton.clicked.connect(self.close)
-
+#endregion
     
 if __name__ == '__main__':
+    conn = Connect()
+    admin = AdminClass(conn.db)
     app = QApplication(sys.argv)
-    main_window = login_window()
+    main_window = login_window(admin)
     main_window.show()
     sys.exit(app.exec_())
