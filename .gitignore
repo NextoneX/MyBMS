@@ -1,5 +1,6 @@
 .vscode/
 *.zip
+*.lnk
 .vs/
 node_modules/
 test.*
