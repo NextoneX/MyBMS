@@ -1,4 +1,6 @@
 .vscode/
+__pycache__
+ui/
 *.zip
 *.lnk
 .vs/
