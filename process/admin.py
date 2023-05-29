@@ -3,7 +3,7 @@ import datetime
 class AdminClass():
     def __init__(self, db) -> None:
         self.__no = None
-        self.__db = db
+        self.db = db
         self.__cursor = db.cursor()
 
     def __del__(self) -> None:

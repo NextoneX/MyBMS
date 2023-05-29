@@ -8,8 +8,8 @@ from process.admin import AdminClass
 from process.util import SearchBook
 #region mainwindow
 class login_window(QMainWindow):
-    def __init__(self, admin):
-        self.admin = admin
+    def __init__(self, db):
+        self.admin = AdminClass(db)
         super(login_window, self).__init__()
         self.ui = Ui_login_window()
         self.ui.setupUi(self)
@@ -18,7 +18,7 @@ class login_window(QMainWindow):
         self.ui.Non_admin_login.clicked.connect(self.openSearchBookWindow)
 
     def check_login(self):
-        if(admin.login(self.ui.ano_input.toPlainText(), self.ui.password_input.toPlainText())):
+        if(self.admin.login(self.ui.ano_input.toPlainText(), self.ui.password_input.toPlainText())):
             self.openAdminWindow()
             QMessageBox.information(self, "Login success", "Login success!")
         else:
@@ -35,13 +35,13 @@ class login_window(QMainWindow):
 
     def opensubwindow(self, window_type):
         self.hide()
-        new_window = window_type(admin)
+        new_window = window_type(self.admin)
         new_window.destroyed.connect(self.show)
         new_window.ui.ReturnButton.clicked.connect(self.show)
         new_window.exec_()
 
     def openSearchBookWindow(self):
-        self.opensubwindow(search_book_widget, True)
+        self.opensubwindow(search_book_widget)
 
     def openBookRegWindow(self):
         self.opensubwindow(book_reg_widget)
@@ -68,7 +68,6 @@ class search_book_widget(QDialog):
         #todo show result
         #todo show error
         #todo range search(year and price)
-        bno = self.ui.bno_input.toPlainText()
         category = self.ui.category_input.toPlainText()
         title = self.ui.title_input.toPlainText()
         press = self.ui.press_input.toPlainText()
@@ -77,14 +76,14 @@ class search_book_widget(QDialog):
         author = self.ui.author_input.toPlainText()
         price_from = self.ui.price_input_from.toPlainText()
         price_to = self.ui.price_input_to.toPlainText()
-        total = self.ui.total_input.toPlainText()
-        stock = self.ui.stock_input.toPlainText()
-        state, result = self.search.find_book(bno, category, title, press, year_from, 
-                            year_to, author, price_from, price_to, total, stock)
+        state, result = self.search.find_book(category, title, press, year_from, 
+                            year_to, author, price_from, price_to)
         if(state == 1):
             QMessageBox.information(self, "Search success", result)
+        elif(state == -1):
+            QMessageBox.critical(self, "Search failed", "No input!")
         elif(state == 404):
-            QMessageBox.critical(self, "Search failed", "No result!")
+            QMessageBox.critical(self, "Search failed", "Unknown error!")
         else:
             QMessageBox.critical(self, "Search failed", "Unknown error!")
 
@@ -212,8 +211,8 @@ class card_manage_widget(QDialog):
     
 if __name__ == '__main__':
     conn = Connect()
-    admin = AdminClass(conn.db)
+    # admin = AdminClass(conn.db)
     app = QApplication(sys.argv)
-    main_window = login_window(admin)
+    main_window = login_window(conn.db)
     main_window.show()
     sys.exit(app.exec_())
