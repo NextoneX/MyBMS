@@ -64,10 +64,6 @@ class search_book_widget(QDialog):
         self.ui.SearchButton.clicked.connect(self.search_book)
     
     def search_book(self):
-        #todo check input
-        #todo show result
-        #todo show error
-        #todo range search(year and price)
         category = self.ui.category_input.toPlainText()
         title = self.ui.title_input.toPlainText()
         press = self.ui.press_input.toPlainText()
@@ -80,10 +76,12 @@ class search_book_widget(QDialog):
                             year_to, author, price_from, price_to)
         if(state == 1):
             QMessageBox.information(self, "Search success", result)
-        elif(state == -1):
+        elif(state == 0):
             QMessageBox.critical(self, "Search failed", "No input!")
+        elif(state == -1):
+            QMessageBox.critical(self, "Search failed", result)
         elif(state == 404):
-            QMessageBox.critical(self, "Search failed", "Unknown error!")
+            QMessageBox.critical(self, "Search failed", "No such book!")
         else:
             QMessageBox.critical(self, "Search failed", "Unknown error!")
 
