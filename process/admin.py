@@ -5,11 +5,9 @@ class AdminClass():
         self.__no = None
         self.__db = db
         self.__cursor = db.cursor()
-        cno = None
-        print("Login success.\n")
 
     def __del__(self) -> None:
-        self.cursor.close()
+        self.__cursor.close()
         print("Account has been logged out.\n")
 
     def login(self, login_no: str, login_password: str) -> bool:
@@ -18,11 +16,12 @@ class AdminClass():
         result = len(self.__cursor.fetchall())
         if(result > 0):
             self.__no = login_no
+            print("Login success.\n")
             return True
         else:
             return False
 
-    def borrow(self, bno: str, cno: str) -> int:
+    def book_borrow(self, bno: str, cno: str) -> int:
         #do some check
         check_stock_sql = " select stock from book where bno = %s "
         self.__cursor.execute(check_stock_sql,(bno))
@@ -95,13 +94,19 @@ class AdminClass():
             print(u'加书失败\n查询错误...', e)
             self.__db.rollback()
         return 0
+    
+    def check_card(self, cno: str) -> bool:
+        check_card_sql = " select * from card where cno = %s "
+        self.__cursor.execute(check_card_sql,(cno))
+        result = self.__cursor.fetchall()
+        if(len(result) > 0):
+            return True
+        else:
+            return False
 
     def add_card(self, cno: str, name: str, department: str, type: int) -> int:
         #do some check
-        check_add_card_sql = " select * from card where cno = %s "
-        self.__cursor.execute(check_add_card_sql,(cno))
-        result = self.__cursor.fetchall()
-        if(len(result) > 0):
+        if(self.check_card(cno)):
             return -1  #already exist
         
         try:
@@ -118,10 +123,7 @@ class AdminClass():
 
     def delete_card(self, cno: str) -> int:
         #do some check
-        check_delete_sql = " select * from card where cno = %s "
-        self.__cursor.execute(check_delete_sql,(cno))
-        result = self.__cursor.fetchall()
-        if(len(result) < 1):
+        if(not self.check_card(cno)):
             return 404  #not found
         
         try:
@@ -131,7 +133,7 @@ class AdminClass():
             return 1
         
         except Exception as e:
-            print(u'删卡失败\n查询错误...', e)
+            print('删卡失败\n查询错误...', e)
             self.__db.rollback()
         return 0
         
