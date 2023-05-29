@@ -95,9 +95,6 @@ class book_reg_widget(QDialog):
         self.ui.RegButton.clicked.connect(self.reg_book)
 
     def reg_book(self):
-        #todo check input
-        #todo show result
-        #todo show error
         bno = self.ui.bno_input.toPlainText()
         category = self.ui.category_input.toPlainText()
         title = self.ui.title_input.toPlainText()
@@ -105,13 +102,12 @@ class book_reg_widget(QDialog):
         year = self.ui.year_input.toPlainText()
         author = self.ui.author_input.toPlainText()
         price = self.ui.price_input.toPlainText()
-        total = self.ui.total_input.toPlainText()
-        stock = self.ui.stock_input.toPlainText()
-        state = self.admin.add_newbook(bno, category, title, press, year, author, price, total, stock)
+        num = self.ui.num_input.toPlainText()
+        state, result = self.admin.reg_book(bno, category, title, press, year, author, price, num)
         if(state == 1):
             QMessageBox.information(self, "Reg success", "Reg success!")
-        elif(state == 404):
-            QMessageBox.critical(self, "Reg failed", "No result!")
+        elif(state == -1):
+            QMessageBox.critical(self, "Reg failed", result)
         else:
             QMessageBox.critical(self, "Reg failed", "Unknown error!")
 
