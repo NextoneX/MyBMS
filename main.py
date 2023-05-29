@@ -95,6 +95,7 @@ class book_reg_widget(QDialog):
         self.ui.RegButton.clicked.connect(self.reg_book)
 
     def reg_book(self):
+        #todo add in existed book
         bno = self.ui.bno_input.toPlainText()
         category = self.ui.category_input.toPlainText()
         title = self.ui.title_input.toPlainText()
@@ -112,6 +113,7 @@ class book_reg_widget(QDialog):
             QMessageBox.critical(self, "Reg failed", "Unknown error!")
 
 class BR_widget(QDialog):
+    #todo
     def __init__(self, admin):
         self.admin = admin
         super(BR_widget, self).__init__()
@@ -164,6 +166,7 @@ class BR_widget(QDialog):
             QMessageBox.critical(self, "Return failed", "Unknown error!")
 
 class card_manage_widget(QDialog):
+    #todo
     def __init__(self, admin):
         self.admin = admin
         super(card_manage_widget, self).__init__()
