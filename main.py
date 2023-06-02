@@ -8,7 +8,7 @@ from process.admin import AdminClass
 from process.util import SearchBook
 #region mainwindow
 class login_window(QMainWindow):
-    def __init__(self, db):
+    def __init__(self, db: Connect.db):
         self.admin = AdminClass(db)
         super(login_window, self).__init__()
         self.ui = Ui_login_window()
@@ -55,7 +55,7 @@ class login_window(QMainWindow):
 
 #region widgets
 class search_book_widget(QDialog):
-    def __init__(self, admin):
+    def __init__(self, admin: AdminClass):
         self.search = SearchBook(admin.db)
         super(search_book_widget, self).__init__()
         self.ui = Ui_search_book_widget()
@@ -76,17 +76,13 @@ class search_book_widget(QDialog):
                             year_to, author, price_from, price_to)
         if(state == 1):
             QMessageBox.information(self, "Search success", result)
-        elif(state == 0):
-            QMessageBox.critical(self, "Search failed", "No input!")
-        elif(state == -1):
-            QMessageBox.critical(self, "Search failed", result)
-        elif(state == 404):
-            QMessageBox.critical(self, "Search failed", "No such book!")
+        # elif(state == -1):
+        #     QMessageBox.critical(self, "Search failed", result)
         else:
-            QMessageBox.critical(self, "Search failed", "Unknown error!")
+            QMessageBox.critical(self, "Search failed", result)
 
 class book_reg_widget(QDialog):
-    def __init__(self, admin):
+    def __init__(self, admin: AdminClass):
         self.admin = admin
         super(book_reg_widget, self).__init__()
         self.ui = Ui_book_reg_widget()
@@ -107,14 +103,14 @@ class book_reg_widget(QDialog):
         state, result = self.admin.reg_book(bno, category, title, press, year, author, price, num)
         if(state == 1):
             QMessageBox.information(self, "Reg success", "Reg success!")
-        elif(state == -1):
-            QMessageBox.critical(self, "Reg failed", result)
+        # elif(state == -1):
+        #     QMessageBox.critical(self, "Reg failed", result)
         else:
-            QMessageBox.critical(self, "Reg failed", "Unknown error!")
+            QMessageBox.critical(self, "Reg failed", result)
 
 class BR_widget(QDialog):
     #todo
-    def __init__(self, admin):
+    def __init__(self, admin: AdminClass):
         self.admin = admin
         super(BR_widget, self).__init__()
         self.ui = Ui_BR_widget()
@@ -129,10 +125,9 @@ class BR_widget(QDialog):
 
     def card_input(self):
         self.cno = self.ui.cno_input.toPlainText()
-        state = self.admin.check_card(self.cno)
-        if(state):
+        if(self.admin.check_card(self.cno)):
             QMessageBox.information(self, "Card check success", "Card check success!")
-            self.ui.borrowed_output.setText(self.admin.show_borrow_book(self.cno))
+            self.ui.borrowed_output.setText("\n".join(self.admin.show_borrow_book(self.cno)))
             self.ui.BorrowButton.setEnabled = True
             self.ui.ReturnButton.setEnabled = True
         else:
@@ -141,32 +136,26 @@ class BR_widget(QDialog):
             self.ui.ReturnButton.setEnabled = False
 
     def borrow_book(self):
-        #todo more output
         bno = self.ui.bno_input.toPlainText()
-        state = self.admin.book_borrow(bno, self.cno)
+        state, result = self.admin.book_borrow(bno, self.cno)
         if(state == 1):
             QMessageBox.information(self, "Borrow success", "Borrow success!")
-        elif(state == -1):
-            QMessageBox.critical(self, "Borrow failed", "Not enough!")
-        elif(state == 404):
-            QMessageBox.critical(self, "Borrow failed", "No result!")
+        # elif(state == -1):
+        #     QMessageBox.critical(self, "Borrow failed", result)
         else:
-            QMessageBox.critical(self, "Borrow failed", "Unknown error!")
+            QMessageBox.critical(self, "Borrow failed", result)
 
     def return_book(self):
-        #todo more output
         bno = self.ui.bno_input.toPlainText()
-        state = self.admin.book_return(bno, self.cno)
-        # state, message = self.admin.book_return(bno, self.cno)
+        state, result = self.admin.book_return(bno, self.cno)
         if(state == 1):
             QMessageBox.information(self, "Return success", "Return success!")
-        elif(state == 404):
-            QMessageBox.critical(self, "Return failed", "No result!")
+        # elif(state == -1):
+        #     QMessageBox.critical(self, "Return failed", result)
         else:
-            QMessageBox.critical(self, "Return failed", "Unknown error!")
+            QMessageBox.critical(self, "Return failed", result)
 
 class card_manage_widget(QDialog):
-    #todo
     def __init__(self, admin):
         self.admin = admin
         super(card_manage_widget, self).__init__()
@@ -177,38 +166,31 @@ class card_manage_widget(QDialog):
         self.ui.DeleteButton.clicked.connect(self.delete_card)
     
     def add_card(self):
-        #todo check input
-        #todo show result
-        #todo show error
         cno = self.ui.cno_input.toPlainText()
         name = self.ui.name_input.toPlainText()
         department = self.ui.department_input.toPlainText()
         type = self.ui.type_input.value()
-        state = self.admin.add_card(cno, name, department, type)
+        state, result = self.admin.add_card(cno, name, department, type)
         if(state == 1):
             QMessageBox.information(self, "Add success", "Add success!")
-        elif(state == -1):
-            QMessageBox.critical(self, "Add failed", "Already exist!")
+        # elif(state == -1):
+        #     QMessageBox.critical(self, "Add failed", result)
         else:
-            QMessageBox.critical(self, "Add failed", "Unknown error!")
+            QMessageBox.critical(self, "Add failed", result)
     
     def delete_card(self):
-        #todo check input
-        #todo show result
-        #todo show error
         cno = self.ui.cno_input.toPlainText()
-        state = self.admin.delete_card(cno)
+        state, result = self.admin.delete_card(cno)
         if(state == 1):
             QMessageBox.information(self, "Delete success", "Delete success!")
-        elif(state == 404):
-            QMessageBox.critical(self, "Delete failed", "No such card!")
+        # elif(state == -1):
+        #     QMessageBox.critical(self, "Delete failed", result)
         else:
-            QMessageBox.critical(self, "Delete failed", "Unknown error!")
+            QMessageBox.critical(self, "Delete failed", result)
 #endregion
     
 if __name__ == '__main__':
     conn = Connect()
-    # admin = AdminClass(conn.db)
     app = QApplication(sys.argv)
     main_window = login_window(conn.db)
     main_window.show()
