@@ -174,12 +174,14 @@ class AdminClass():
     def show_borrow_book(self, cno):
         show_borrow_book_sql = " select * from borrow where cno = %s and return_date is null "
         self.__cursor.execute(show_borrow_book_sql, (cno))
-        return self.__cursor.fetchall()
+        result = self.__cursor.fetchall()
+        result = "\n".join(" ".join(str(i) for i in row) for row in result)
+        return result
     
-    def show_all_cards(self):
-        show_card_sql = " select * from card "
-        self.__cursor.execute(show_card_sql)
-        return self.__cursor.fetchall()
+    # def show_all_cards(self):
+    #     show_card_sql = " select * from card "
+    #     self.__cursor.execute(show_card_sql)
+    #     return self.__cursor.fetchall()
     
     def check_int(str_in: str) -> int:
         try:

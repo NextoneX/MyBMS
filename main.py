@@ -63,6 +63,7 @@ class search_book_widget(QDialog):
         self.ui.SearchButton.clicked.connect(self.search_book)
     
     def search_book(self):
+        #todo update output
         category = self.ui.category_input.toPlainText()
         title = self.ui.title_input.toPlainText()
         press = self.ui.press_input.toPlainText()
@@ -74,7 +75,12 @@ class search_book_widget(QDialog):
         state, result = self.search.find_book(category, title, press, year_from, 
                             year_to, author, price_from, price_to)
         if(state == 1):
-            QMessageBox.information(self, "Search success", result)
+            message_box = QMessageBox(self)
+            message_box.setWindowTitle("Search success")
+            message_box.setText("(bno,category,name,press,year,author,price,total,stock):\n"
+                                 + result)
+            message_box.setFixedSize(800, 600)
+            message_box.exec_()
         # elif(state == -1):
         #     QMessageBox.critical(self, "Search failed", result)
         else:
@@ -126,7 +132,8 @@ class BR_widget(QDialog):
         self.cno = self.ui.cno_input.toPlainText()
         if(self.admin.check_card(self.cno)):
             QMessageBox.information(self, "Card check success", "Card check success!")
-            self.ui.borrowed_output.setText("\n".join(self.admin.show_borrow_book(self.cno)))
+            self.ui.borrowed_output.setText("(bno,category,name,press,year,author,price,total,stock):\n" 
+                                            + self.admin.show_borrow_book(self.cno))
             self.ui.BorrowButton.setEnabled = True
             self.ui.ReturnButton.setEnabled = True
         else:

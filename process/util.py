@@ -38,7 +38,7 @@ class SearchBook():
             if(len(result) == 0): 
                 return -1, "No such book!"
             else: 
-                result = "\n".join(result)
+                result = "\n".join(" ".join(str(i) for i in row) for row in result)
                 return 1, result
         except Exception as e:
             self.__db.rollback()
