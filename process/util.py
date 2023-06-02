@@ -42,7 +42,7 @@ class SearchBook():
                 return 1, result
         except Exception as e:
             self.__db.rollback()
-            return 0, str(u'Query failed\n', e)
+            return 0, str(u'Query failed\n') + str(e)
     
     def check_int(str_in: str) -> int:
         try:
