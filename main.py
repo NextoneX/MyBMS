@@ -6,9 +6,9 @@ from frontend.windows_ui import *
 from link.connect import Connect
 from process.admin import AdminClass
 from process.util import SearchBook
-#region mainwindow
+
 class login_window(QMainWindow):
-    def __init__(self, db: Connect.db):
+    def __init__(self, db):
         self.admin = AdminClass(db)
         super(login_window, self).__init__()
         self.ui = Ui_login_window()
@@ -51,7 +51,6 @@ class login_window(QMainWindow):
     
     def openCardManageWindow(self):
         self.opensubwindow(card_manage_widget)
-#endregion
 
 #region widgets
 class search_book_widget(QDialog):
