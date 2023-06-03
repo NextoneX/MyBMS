@@ -81,8 +81,6 @@ class search_book_widget(QDialog):
                                                 , result, self)
             message_box.setWindowTitle("Search success")
             message_box.exec_()
-        # elif(state == -1):
-        #     QMessageBox.critical(self, "Search failed", result)
         else:
             QMessageBox.critical(self, "Search failed", result)
 
@@ -97,7 +95,6 @@ class book_reg_widget(QDialog):
         self.ui.AddButton.clicked.connect(self.add_book)
 
     def reg_book(self):
-        #todo add in existed book
         bno = self.ui.bno_input.toPlainText()
         category = self.ui.category_input.toPlainText()
         title = self.ui.title_input.toPlainText()
@@ -109,8 +106,6 @@ class book_reg_widget(QDialog):
         state, result = self.admin.reg_book(bno, category, title, press, year, author, price, num)
         if(state == 1):
             QMessageBox.information(self, "Reg success", "Reg success!")
-        # elif(state == -1):
-        #     QMessageBox.critical(self, "Reg failed", result)
         else:
             QMessageBox.critical(self, "Reg failed", result)
     
@@ -120,8 +115,6 @@ class book_reg_widget(QDialog):
         state, result = self.admin.add_book(bno, num)
         if(state == 1):
             QMessageBox.information(self, "Add success", "Add success!")
-        # elif(state == -1):
-        #     QMessageBox.critical(self, "Add failed", result)
         else:
             QMessageBox.critical(self, "Add failed", result)
 
@@ -156,8 +149,6 @@ class BR_widget(QDialog):
             self.ui.BorrowButton.setEnabled(False)
             self.ui.ReturnButton.setEnabled(False)
             QMessageBox.information(self, "Borrow success", "Borrow success!")
-        # elif(state == -1):
-        #     QMessageBox.critical(self, "Borrow failed", result)
         else:
             QMessageBox.critical(self, "Borrow failed", result)
 
@@ -168,8 +159,6 @@ class BR_widget(QDialog):
             self.ui.BorrowButton.setEnabled(False)
             self.ui.ReturnButton.setEnabled(False)
             QMessageBox.information(self, "Return success", "Return success!")
-        # elif(state == -1):
-        #     QMessageBox.critical(self, "Return failed", result)
         else:
             QMessageBox.critical(self, "Return failed", result)
 
@@ -191,8 +180,6 @@ class card_manage_widget(QDialog):
         state, result = self.admin.add_card(cno, name, department, type)
         if(state == 1):
             QMessageBox.information(self, "Add success", "Add success!")
-        # elif(state == -1):
-        #     QMessageBox.critical(self, "Add failed", result)
         else:
             QMessageBox.critical(self, "Add failed", result)
     
@@ -201,8 +188,6 @@ class card_manage_widget(QDialog):
         state, result = self.admin.delete_card(cno)
         if(state == 1):
             QMessageBox.information(self, "Delete success", "Delete success!")
-        # elif(state == -1):
-        #     QMessageBox.critical(self, "Delete failed", result)
         else:
             QMessageBox.critical(self, "Delete failed", result)
 #endregion
