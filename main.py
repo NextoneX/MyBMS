@@ -5,7 +5,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from frontend.windows_ui import *
 from link.connect import Connect
 from process.admin import AdminClass
-from process.util import SearchBook
+from process.util import *
 
 class login_window(QMainWindow):
     def __init__(self, db):
@@ -63,7 +63,6 @@ class search_book_widget(QDialog):
         self.ui.SearchButton.clicked.connect(self.search_book)
     
     def search_book(self):
-        #todo update output
         category = self.ui.category_input.toPlainText()
         title = self.ui.title_input.toPlainText()
         press = self.ui.press_input.toPlainText()
@@ -72,14 +71,15 @@ class search_book_widget(QDialog):
         author = self.ui.author_input.toPlainText()
         price_from = self.ui.price_input_from.toPlainText()
         price_to = self.ui.price_input_to.toPlainText()
+        order = self.ui.order_input.currentText()
+        descCheck = self.ui.descCheck.isChecked()
+        print(order)
         state, result = self.search.find_book(category, title, press, year_from, 
-                            year_to, author, price_from, price_to)
+                            year_to, author, price_from, price_to, order, descCheck)
         if(state == 1):
-            message_box = QMessageBox(self)
+            message_box = ScrollableMessageBox("(bno,category,name,press,year,author,price,total,stock):"
+                                                , result, self)
             message_box.setWindowTitle("Search success")
-            message_box.setText("(bno,category,name,press,year,author,price,total,stock):\n"
-                                 + result)
-            message_box.setFixedSize(800, 600)
             message_box.exec_()
         # elif(state == -1):
         #     QMessageBox.critical(self, "Search failed", result)
@@ -114,7 +114,6 @@ class book_reg_widget(QDialog):
             QMessageBox.critical(self, "Reg failed", result)
 
 class BR_widget(QDialog):
-    #todo
     def __init__(self, admin: AdminClass):
         self.admin = admin
         super(BR_widget, self).__init__()
@@ -122,9 +121,9 @@ class BR_widget(QDialog):
         self.ui.setupUi(self)
         self.ui.ReturnButton_2.clicked.connect(self.close)
         self.ui.CardInputButton.clicked.connect(self.card_input)
-        self.ui.BorrowButton.setEnabled = False
+        self.ui.BorrowButton.setEnabled(False)
         self.ui.BorrowButton.clicked.connect(self.borrow_book)
-        self.ui.ReturnButton.setEnabled = False
+        self.ui.ReturnButton.setEnabled(False)
         self.ui.ReturnButton.clicked.connect(self.return_book)
         self.cno: str = None
 
@@ -132,19 +131,18 @@ class BR_widget(QDialog):
         self.cno = self.ui.cno_input.toPlainText()
         if(self.admin.check_card(self.cno)):
             QMessageBox.information(self, "Card check success", "Card check success!")
-            self.ui.borrowed_output.setText("(bno,category,name,press,year,author,price,total,stock):\n" 
-                                            + self.admin.show_borrow_book(self.cno))
-            self.ui.BorrowButton.setEnabled = True
-            self.ui.ReturnButton.setEnabled = True
+            self.ui.borrowed_output.setText(self.admin.show_borrow_book(self.cno))
+            self.ui.BorrowButton.setEnabled(True)
+            self.ui.ReturnButton.setEnabled(True)
         else:
             QMessageBox.critical(self, "Card check failed", "Card check failed!")
-            self.ui.BorrowButton.setEnabled = False
-            self.ui.ReturnButton.setEnabled = False
 
     def borrow_book(self):
         bno = self.ui.bno_input.toPlainText()
         state, result = self.admin.book_borrow(bno, self.cno)
         if(state == 1):
+            self.ui.BorrowButton.setEnabled(False)
+            self.ui.ReturnButton.setEnabled(False)
             QMessageBox.information(self, "Borrow success", "Borrow success!")
         # elif(state == -1):
         #     QMessageBox.critical(self, "Borrow failed", result)
@@ -155,6 +153,8 @@ class BR_widget(QDialog):
         bno = self.ui.bno_input.toPlainText()
         state, result = self.admin.book_return(bno, self.cno)
         if(state == 1):
+            self.ui.BorrowButton.setEnabled(False)
+            self.ui.ReturnButton.setEnabled(False)
             QMessageBox.information(self, "Return success", "Return success!")
         # elif(state == -1):
         #     QMessageBox.critical(self, "Return failed", result)

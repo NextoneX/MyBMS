@@ -1,3 +1,14 @@
+from PyQt5.QtWidgets import QMessageBox, QTextBrowser
+
+class ScrollableMessageBox(QMessageBox):
+    def __init__(self, textContent: str, textScoll: str, parent=None):
+        super(ScrollableMessageBox, self).__init__(parent)
+        self.setText(textContent)
+        text_browser = QTextBrowser()
+        text_browser.setPlainText(textScoll)
+        text_browser.setMinimumWidth(600)
+        self.layout().addWidget(text_browser)
+
 class SearchBook():
     def __init__(self, db) -> None:
         self.__no = None
@@ -5,7 +16,7 @@ class SearchBook():
         self.__cursor = db.cursor()
 
     def find_book(self, category: str, title: str, press: str, year_from: str, year_to: str, 
-            author: str, price_from: str, price_to: str):
+            author: str, price_from: str, price_to: str, order: str, descCheck: bool):
         search_book_sql = " select * from book where"
         length = len(search_book_sql)
         if(category != ""): search_book_sql += " category = '%s' and " % category
@@ -29,17 +40,19 @@ class SearchBook():
             if(temp == -1): return -1, "price_to is not a number!"
             search_book_sql += " price <= %i and " % temp
         if(len(search_book_sql) == length): return -1, "No input!"
-        search_book_sql += " 1 = 1 "
+        search_book_sql += " 1 = 1 Order by " + order
+        if(descCheck): search_book_sql += " desc "
         try:
+            print(search_book_sql)
             self.__cursor.execute(search_book_sql)
             result = self.__cursor.fetchall()
-            print(search_book_sql)
             print(result)
             if(len(result) == 0): 
                 return -1, "No such book!"
             else: 
-                result = "\n".join(" ".join(str(i) for i in row) for row in result)
-                return 1, result
+                result_str = "\n".join(" ".join(str(i) for i in row) for row in result)
+                print(result_str)
+                return 1, result_str
         except Exception as e:
             self.__db.rollback()
             return 0, str(u'Query failed\n') + str(e)

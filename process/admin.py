@@ -28,8 +28,8 @@ class AdminClass():
         result = self.__cursor.fetchall()
         if(len(result) < 1):
             return -1, "No such book!"  #not found
-        print(result[0])
-        if(int(result[0]) < 1):
+        # print(result)
+        if(int(result[0][0]) < 1):
             find_book_sql = " select borrow_date from borrow where bno = %s and return_date is null ORDER BY borrow_date "
             self.__cursor.execute(find_book_sql,(bno))
             result = self.__cursor.fetchall()
@@ -43,7 +43,7 @@ class AdminClass():
         #borrow
         try:
             borrow_sql = " insert into borrow values (%s,%s,%s,null,%s) "
-            borrow_date = datetime.datetime.now().strftime('%Y-%m-%d')
+            borrow_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.__cursor.execute(borrow_sql,(bno, cno, borrow_date, self.__no))
             stock_sub_sql = " update book set stock = stock - 1 where bno = %s "
             self.__cursor.execute(stock_sub_sql,(bno))
@@ -67,7 +67,7 @@ class AdminClass():
         try:
             return_sql = (" update borrow set return_date = %s, ano = %s" 
                           " where bno = %s and cno = %s and return_date is null ")
-            return_date = datetime.datetime.now().strftime('%Y-%m-%d')
+            return_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.__cursor.execute(return_sql,(return_date, self.__no, bno, cno))
             self.db.commit()
             stock_add_sql = " update book set stock = stock + 1 where bno = %s "
@@ -146,8 +146,8 @@ class AdminClass():
             return -1, "Already exist!"  #already exist
         
         try:
-            add_card_sql = " insert into card values (%s,%s,%s,%i) "
-            self.__cursor.execute(add_card_sql,(cno, name, department, type))
+            add_card_sql = " insert into card values ('%s', '%s', '%s', %i) " % (cno, name, department, type)
+            self.__cursor.execute(add_card_sql)
             self.db.commit()
             return 1, None
         
@@ -172,11 +172,20 @@ class AdminClass():
             return 0, str(u'delete card failed\n') + str(e)
         
     def show_borrow_book(self, cno):
-        show_borrow_book_sql = " select * from borrow where cno = %s and return_date is null "
-        self.__cursor.execute(show_borrow_book_sql, (cno))
-        result = self.__cursor.fetchall()
-        result = "\n".join(" ".join(str(i) for i in row) for row in result)
-        return result
+        show_borrow_sql = " select * from borrow where cno = %s and return_date is null "
+        self.__cursor.execute(show_borrow_sql, (cno))
+        borrow_result = self.__cursor.fetchall()
+        if(len(borrow_result) == 0):
+            return "No book borrowed!"
+        else:
+            result = []
+            show_borrow_book_sql = " select * from book where bno = %s "
+            for i in range(len(borrow_result)):
+                print(borrow_result[i][0])
+                self.__cursor.execute(show_borrow_book_sql, (borrow_result[i][0]))
+                result.append(self.__cursor.fetchall()[0])
+            result_str = "\n".join(" ".join(str(i) for i in row) for row in result)
+            return result_str
     
     # def show_all_cards(self):
     #     show_card_sql = " select * from card "
