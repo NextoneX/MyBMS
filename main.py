@@ -94,6 +94,7 @@ class book_reg_widget(QDialog):
         self.ui.setupUi(self)
         self.ui.ReturnButton.clicked.connect(self.close)
         self.ui.RegButton.clicked.connect(self.reg_book)
+        self.ui.AddButton.clicked.connect(self.add_book)
 
     def reg_book(self):
         #todo add in existed book
@@ -112,6 +113,17 @@ class book_reg_widget(QDialog):
         #     QMessageBox.critical(self, "Reg failed", result)
         else:
             QMessageBox.critical(self, "Reg failed", result)
+    
+    def add_book(self):
+        bno = self.ui.bno_input.toPlainText()
+        num = self.ui.num_input.toPlainText()
+        state, result = self.admin.add_book(bno, num)
+        if(state == 1):
+            QMessageBox.information(self, "Add success", "Add success!")
+        # elif(state == -1):
+        #     QMessageBox.critical(self, "Add failed", result)
+        else:
+            QMessageBox.critical(self, "Add failed", result)
 
 class BR_widget(QDialog):
     def __init__(self, admin: AdminClass):

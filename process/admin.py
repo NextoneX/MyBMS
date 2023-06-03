@@ -84,8 +84,8 @@ class AdminClass():
         #region input check
         if(len(bno) != 8):
             return -1, "bno is not 8 digits!"
-        if(len(category) != 10):
-            return -1, "category is not 10 digits!"
+        if(len(category) > 19):
+            return -1, "category is too long!"
         if(len(title) > 39):
             return -1, "title is too long!"
         if(len(title) == 0):
@@ -109,14 +109,36 @@ class AdminClass():
             return -1, "number error!"
         #endregion
 
-        check_add_book_sql = " select * from book where bno = %s "
-        self.__cursor.execute(check_add_book_sql,(bno))
+        check_reg_book_sql = " select * from book where bno = %s "
+        self.__cursor.execute(check_reg_book_sql,(bno))
         result = self.__cursor.fetchall()
         if(len(result) > 0):
             return -1, "Already exist!"
         
         try:
-            add_book_sql = " insert into book values ('%s','%s','%s','%s',%i,'%s',%.2f,%i,%i) " % (bno, category, title, press, year, author, price, num, num)
+            reg_book_sql = " insert into book values ('%s','%s','%s','%s',%i,'%s',%.2f,%i,%i) " % (bno, category, title, press, year, author, price, num, num)
+            self.__cursor.execute(reg_book_sql)
+            self.db.commit()
+            return 1, None
+        
+        except Exception as e:
+            self.db.rollback()
+            return 0, str(u'Reg book failed\n') + str(e)
+    
+    def add_book(self, bno: str, num_str: str):
+        if(len(bno) != 8):
+            return -1, "bno is not 8 digits!"
+        num = AdminClass.check_int(num_str)
+        if(num < 0 or num > 9999):
+            return -1, "number error!"
+        check_add_book_sql = " select * from book where bno = %s "
+        self.__cursor.execute(check_add_book_sql,(bno))
+        result = self.__cursor.fetchall()
+        if(len(result) < 1):
+            return -1, "Don't exist!"
+        
+        try:
+            add_book_sql = " update book set total = total + %i, stock = stock + %i where bno = '%s' " % (num, num, bno)
             self.__cursor.execute(add_book_sql)
             self.db.commit()
             return 1, None

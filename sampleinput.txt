@@ -1,0 +1,2 @@
+( book_no1, Computer Science, Computer Architecture, xxx, 2004, xxx, 90.00, 2 ),
+( book_no2, Computer Science, Computer Architecture, xxx, 2004, xxx, 90.00, 2 ),
