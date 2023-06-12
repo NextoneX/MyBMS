@@ -1,4 +1,5 @@
 import datetime
+from process.util import Util
 
 class AdminClass():
     def __init__(self, db) -> None:
@@ -8,7 +9,8 @@ class AdminClass():
 
     def __del__(self) -> None:
         self.__cursor.close()
-        print("Account has been logged out.\n")
+        if(self.__no):
+            print("Account has been logged out.\n")
 
     def login(self, login_no: str, login_password: str) -> bool:
         login_sql = " select * from admin where ano = %s and password = %s"
@@ -34,11 +36,15 @@ class AdminClass():
             self.__cursor.execute(find_book_sql,(bno))
             result = self.__cursor.fetchall()
             return -1, "No stock!\n" + "The earliest books on loan are in " + result[0]   #not enough
+        search_type_sql = " select type from card where cno = %s "
+        self.__cursor.execute(search_type_sql,(cno))
+        type = int(self.__cursor.fetchall()[0][0])
+        # print(type)
         check_borrow_sql = " select * from borrow where bno = %s and cno = %s and return_date is null "
         self.__cursor.execute(check_borrow_sql,(bno, cno))
         result = self.__cursor.fetchall()
-        if(len(result) > 0):
-            return -1, "Already have!"  #Already have
+        if(len(result) >= type):
+            return -1, "The number of books borrowed has reached your limit."  #borrow limit
         
         #borrow
         try:
@@ -66,7 +72,7 @@ class AdminClass():
         #return
         try:
             return_sql = (" update borrow set return_date = %s, ano = %s" 
-                          " where bno = %s and cno = %s and return_date is null ")
+                          " where bno = %s and cno = %s and return_date is null order by borrow_date limit 1")
             return_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.__cursor.execute(return_sql,(return_date, self.__no, bno, cno))
             self.db.commit()
@@ -94,17 +100,17 @@ class AdminClass():
             return -1, "press is too long!"
         if(len(press) == 0):
             return -1, "press is empty!"
-        year = AdminClass.check_int(year_str)
+        year = Util.check_int(year_str)
         if(year < 0 or year > 9999):
             return -1, "year error!"
         if(len(author) > 19):
             return -1, "author is too long!"
         if(len(author) == 0):
             return -1, "author is empty!"
-        price = AdminClass.check_float(price_str)
+        price = Util.check_float(price_str)
         if(price < 0 or price > 9999):
             return -1, "price error!"
-        num = AdminClass.check_int(num_str)
+        num = Util.check_int(num_str)
         if(num < 0 or num > 9999):
             return -1, "number error!"
         #endregion
@@ -128,7 +134,7 @@ class AdminClass():
     def add_book(self, bno: str, num_str: str):
         if(len(bno) != 8):
             return -1, "bno is not 8 digits!"
-        num = AdminClass.check_int(num_str)
+        num = Util.check_int(num_str)
         if(num < 0 or num > 9999):
             return -1, "number error!"
         check_add_book_sql = " select * from book where bno = %s "
@@ -182,6 +188,11 @@ class AdminClass():
         #do some check
         if(not self.check_card(cno)):
             return -1, "Don't have this card!"  #not found
+        find_borrow_sql = " select borrow_date from borrow where cno = %s and return_date is null "
+        self.__cursor.execute(find_borrow_sql,(cno))
+        result = self.__cursor.fetchall()
+        if(len(result) > 0):
+            return -1, "There are still books not returned"
         
         try:
             delete_card_sql = " delete from card where cno = %s "
@@ -203,7 +214,7 @@ class AdminClass():
             result = []
             show_borrow_book_sql = " select * from book where bno = %s "
             for i in range(len(borrow_result)):
-                print(borrow_result[i][0])
+                # print(borrow_result[i][0])
                 self.__cursor.execute(show_borrow_book_sql, (borrow_result[i][0]))
                 result.append(self.__cursor.fetchall()[0])
             result_str = "\n".join(" ".join(str(i) for i in row) for row in result)
@@ -214,15 +225,4 @@ class AdminClass():
     #     self.__cursor.execute(show_card_sql)
     #     return self.__cursor.fetchall()
     
-    def check_int(str_in: str) -> int:
-        try:
-            return int(str_in)
-        except:
-            return -1
-        
-    def check_float(str_in: str):
-        try:
-            return float(str_in)
-        except:
-            return -1
         

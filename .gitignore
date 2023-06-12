@@ -1,6 +1,6 @@
 .vscode/
 __pycache__
-ui/
+ui_design/
 *.zip
 *.lnk
 .vs/

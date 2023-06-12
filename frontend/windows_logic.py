@@ -1,9 +1,5 @@
-
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMainWindow, QDialog, QMessageBox
 from frontend.windows_ui import *
-from link.connect import Connect
 from process.admin import AdminClass
 from process.util import *
 
@@ -73,7 +69,7 @@ class search_book_widget(QDialog):
         price_to = self.ui.price_input_to.toPlainText()
         order = self.ui.order_input.currentText()
         descCheck = self.ui.descCheck.isChecked()
-        print(order)
+        # print(order)
         state, result = self.search.find_book(category, title, press, year_from, 
                             year_to, author, price_from, price_to, order, descCheck)
         if(state == 1):
@@ -124,12 +120,12 @@ class BR_widget(QDialog):
         super(BR_widget, self).__init__()
         self.ui = Ui_BR_widget()
         self.ui.setupUi(self)
-        self.ui.ReturnButton_2.clicked.connect(self.close)
+        self.ui.ReturnButton.clicked.connect(self.close)
         self.ui.CardInputButton.clicked.connect(self.card_input)
         self.ui.BorrowButton.setEnabled(False)
         self.ui.BorrowButton.clicked.connect(self.borrow_book)
-        self.ui.ReturnButton.setEnabled(False)
-        self.ui.ReturnButton.clicked.connect(self.return_book)
+        self.ui.ReturnBookButton.setEnabled(False)
+        self.ui.ReturnBookButton.clicked.connect(self.return_book)
         self.cno: str = None
 
     def card_input(self):
@@ -138,7 +134,7 @@ class BR_widget(QDialog):
             QMessageBox.information(self, "Card check success", "Card check success!")
             self.ui.borrowed_output.setText(self.admin.show_borrow_book(self.cno))
             self.ui.BorrowButton.setEnabled(True)
-            self.ui.ReturnButton.setEnabled(True)
+            self.ui.ReturnBookButton.setEnabled(True)
         else:
             QMessageBox.critical(self, "Card check failed", "Card check failed!")
 
@@ -147,7 +143,7 @@ class BR_widget(QDialog):
         state, result = self.admin.book_borrow(bno, self.cno)
         if(state == 1):
             self.ui.BorrowButton.setEnabled(False)
-            self.ui.ReturnButton.setEnabled(False)
+            self.ui.ReturnBookButton.setEnabled(False)
             QMessageBox.information(self, "Borrow success", "Borrow success!")
         else:
             QMessageBox.critical(self, "Borrow failed", result)
@@ -157,7 +153,7 @@ class BR_widget(QDialog):
         state, result = self.admin.book_return(bno, self.cno)
         if(state == 1):
             self.ui.BorrowButton.setEnabled(False)
-            self.ui.ReturnButton.setEnabled(False)
+            self.ui.ReturnBookButton.setEnabled(False)
             QMessageBox.information(self, "Return success", "Return success!")
         else:
             QMessageBox.critical(self, "Return failed", result)
@@ -191,10 +187,3 @@ class card_manage_widget(QDialog):
         else:
             QMessageBox.critical(self, "Delete failed", result)
 #endregion
-    
-if __name__ == '__main__':
-    conn = Connect()
-    app = QApplication(sys.argv)
-    main_window = login_window(conn.db)
-    main_window.show()
-    sys.exit(app.exec_())
