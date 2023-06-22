@@ -14,8 +14,12 @@ class AdminClass():
 
     def login(self, login_no: str, login_password: str) -> bool:
         login_sql = " select * from admin where ano = %s and password = %s"
-        self.__cursor.execute(login_sql, (login_no, login_password))
-        result = len(self.__cursor.fetchall())
+        try:
+            self.__cursor.execute(login_sql, (login_no, login_password))
+            result = len(self.__cursor.fetchall())
+        except:
+            return False
+        
         if(result > 0):
             self.__no = login_no
             print("Login success.\n")
@@ -25,6 +29,10 @@ class AdminClass():
 
     def book_borrow(self, bno: str, cno: str):
         #do some check
+        if(len(bno) != 8):
+            return -1, "bno is not 8 digits!"
+        if(len(cno) != 7):
+            return -1, "cno is not 7 digits!"
         check_stock_sql = " select stock from book where bno = %s "
         self.__cursor.execute(check_stock_sql,(bno))
         result = self.__cursor.fetchall()
@@ -62,6 +70,10 @@ class AdminClass():
 
     def book_return(self, bno: str, cno: str):
         #do some check
+        if(len(bno) != 8):
+            return -1, "bno is not 8 digits!"
+        if(len(cno) != 7):
+            return -1, "cno is not 7 digits!"
         check_return_sql = (" select * from borrow where bno = %s and cno = %s"
                             " and return_date is null ")
         self.__cursor.execute(check_return_sql,(bno, cno))
@@ -75,7 +87,6 @@ class AdminClass():
                           " where bno = %s and cno = %s and return_date is null order by borrow_date limit 1")
             return_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.__cursor.execute(return_sql,(return_date, self.__no, bno, cno))
-            self.db.commit()
             stock_add_sql = " update book set stock = stock + 1 where bno = %s "
             self.__cursor.execute(stock_add_sql,(bno))
             self.db.commit()
@@ -122,7 +133,8 @@ class AdminClass():
             return -1, "Already exist!"
         
         try:
-            reg_book_sql = " insert into book values ('%s','%s','%s','%s',%i,'%s',%.2f,%i,%i) " % (bno, category, title, press, year, author, price, num, num)
+            reg_book_sql = " insert into book values ('%s','%s','%s','%s',%i,'%s',%.2f,%i,%i) " % (bno,
+                                                 category, title, press, year, author, price, num, num)
             self.__cursor.execute(reg_book_sql)
             self.db.commit()
             return 1, None
@@ -186,12 +198,12 @@ class AdminClass():
 
     def delete_card(self, cno: str):
         #do some check
+        if(len(cno) != 7):
+            return -1, "cno is not 7 digits!"
         if(not self.check_card(cno)):
             return -1, "Don't have this card!"  #not found
-        find_borrow_sql = " select borrow_date from borrow where cno = %s and return_date is null "
-        self.__cursor.execute(find_borrow_sql,(cno))
-        result = self.__cursor.fetchall()
-        if(len(result) > 0):
+        state, _ = self.show_borrow_book(cno, False)
+        if(state != -1):
             return -1, "There are still books not returned"
         
         try:
@@ -204,13 +216,13 @@ class AdminClass():
             self.db.rollback()
             return 0, str(u'delete card failed\n') + str(e)
         
-    def show_borrow_book(self, cno):
+    def show_borrow_book(self, cno, show_result = True):
         show_borrow_sql = " select * from borrow where cno = %s and return_date is null "
         self.__cursor.execute(show_borrow_sql, (cno))
         borrow_result = self.__cursor.fetchall()
         if(len(borrow_result) == 0):
-            return "No book borrowed!"
-        else:
+            return -1, "No book borrowed!"
+        elif(show_result):
             result = []
             show_borrow_book_sql = " select * from book where bno = %s "
             for i in range(len(borrow_result)):
@@ -218,11 +230,8 @@ class AdminClass():
                 self.__cursor.execute(show_borrow_book_sql, (borrow_result[i][0]))
                 result.append(self.__cursor.fetchall()[0])
             result_str = "\n".join(" ".join(str(i) for i in row) for row in result)
-            return result_str
-    
-    # def show_all_cards(self):
-    #     show_card_sql = " select * from card "
-    #     self.__cursor.execute(show_card_sql)
-    #     return self.__cursor.fetchall()
+            return 0, result_str
+        
+        return 0, None
     
         

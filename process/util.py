@@ -25,7 +25,6 @@ class ScrollableMessageBox(QMessageBox):
 
 class SearchBook():
     def __init__(self, db) -> None:
-        self.__no = None
         self.__db = db
         self.__cursor = db.cursor()
 

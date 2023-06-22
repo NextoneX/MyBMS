@@ -29,7 +29,7 @@ class login_window(QMainWindow):
         self.ui.CardManageButton.clicked.connect(self.openCardManageWindow)
         self.ui.BookSearchButton.clicked.connect(self.openSearchBookWindow)
 
-    def opensubwindow(self, window_type):
+    def openSubWindow(self, window_type):
         self.hide()
         new_window = window_type(self.admin)
         new_window.destroyed.connect(self.show)
@@ -37,16 +37,16 @@ class login_window(QMainWindow):
         new_window.exec_()
 
     def openSearchBookWindow(self):
-        self.opensubwindow(search_book_widget)
+        self.openSubWindow(search_book_widget)
 
     def openBookRegWindow(self):
-        self.opensubwindow(book_reg_widget)
+        self.openSubWindow(book_reg_widget)
 
     def openBRWindow(self):
-        self.opensubwindow(BR_widget)
+        self.openSubWindow(BR_widget)
     
     def openCardManageWindow(self):
-        self.opensubwindow(card_manage_widget)
+        self.openSubWindow(card_manage_widget)
 
 #region widgets
 class search_book_widget(QDialog):
@@ -132,7 +132,8 @@ class BR_widget(QDialog):
         self.cno = self.ui.cno_input.toPlainText()
         if(self.admin.check_card(self.cno)):
             QMessageBox.information(self, "Card check success", "Card check success!")
-            self.ui.borrowed_output.setText(self.admin.show_borrow_book(self.cno))
+            _, result = self.admin.show_borrow_book(self.cno)
+            self.ui.borrowed_output.setText(result)
             self.ui.BorrowButton.setEnabled(True)
             self.ui.ReturnBookButton.setEnabled(True)
         else:
